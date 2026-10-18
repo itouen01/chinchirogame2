@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
+using System.Collections;
 
 public class DiceManager : MonoBehaviour
 {
@@ -18,6 +19,7 @@ public class DiceManager : MonoBehaviour
     public TMPro.TextMeshProUGUI scoreboardText;
     public TMPro.TextMeshProUGUI scoreboardsabText;
     public TMPro.TextMeshProUGUI sumscoreText;
+    public TMPro.TextMeshProUGUI gamefinishscoreText;
     public GameObject resultBackground;
     public int[] countResults = new int[6];
     private bool allDiceProcessed = false;
@@ -30,9 +32,11 @@ public class DiceManager : MonoBehaviour
     [SerializeField]
     private ImageController imageController;
     public bool actflag = false;//振り直し用のフラグ
-    private int sumscore = 0;
-    private int rerollnumber;//リロール残数
+    public int sumscore = 0;
+    public int rerollnumber;//リロール残数
     public TMPro.TextMeshProUGUI rerollcounterText;
+    public bool didikasama;
+    public bool gamestarted;
     void Start()
     {
         sumscore = 0;
@@ -47,6 +51,13 @@ public class DiceManager : MonoBehaviour
         actflag = true;
         imageController.RerollImage();
         rerollnumber = 20;
+        didikasama = false;
+        scoreManager.specialwinImage.SetActive(false);
+        gamefinishscoreText.text = "";
+        gamestarted = true;
+        scoreManager.biaspoint = 0;
+        scoreManager.ikasamadetect.SetActive(false);
+        imageController.hanteiImage.gameObject.SetActive(false);
     }
 
     void Update()
@@ -61,13 +72,16 @@ public class DiceManager : MonoBehaviour
             actflag = false;
             imageController.RerollImage();
             if(scoreManager.biaspoint>=scoreManager.fusinmater)
-            {//CheckEvent()
+            {
+                scoreManager.CheckEvent();
                 scoreManager.biaspoint = 0;
+                Debug.Log("いかさま発生");
             }//biaspoint(いかさま具合)がfusinmator（警戒度）を超えるといかさまと判定される。かいくぐるとその回のスコアが大幅に増し(倍率で)、
             //みつかるとゲームオーバーのチキンレースができる。体験版はある程度回数こなすと強制的に終わる。
         }
-        if (rerollnumber > 0) ;
-        {
+
+        if (rerollnumber != 0) ;
+        { 
             if (!actflag && Keyboard.current.aKey.wasPressedThisFrame)
             {
                 actflag = true;//trueでふれなくなるよ
@@ -77,7 +91,10 @@ public class DiceManager : MonoBehaviour
                 scoreText.gameObject.SetActive(false);
                 resultBackground.SetActive(false);
                 sumscore = sumscore + scoreManager.finalScore;
-                rerollnumber = (rerollnumber-1);
+                rerollnumber = (rerollnumber - 1);
+                didikasama = false;
+                scoreManager.specialwinImage.SetActive(false);
+                scoreManager.ikasamadetect.SetActive(false);
             }
 
             if (Keyboard.current.zKey.wasPressedThisFrame)
@@ -87,6 +104,7 @@ public class DiceManager : MonoBehaviour
                     dice.biasMode = BiasMode.Strong;   // 強化版
                 SetPowarImage(4);
                 scoreManager.biasPowar = 4;
+                didikasama = true;
             }
 
             if (Keyboard.current.xKey.wasPressedThisFrame)
@@ -96,6 +114,7 @@ public class DiceManager : MonoBehaviour
                     dice.biasMode = BiasMode.MiniStrong;     // ちょい強い版
                 SetPowarImage(3);
                 scoreManager.biasPowar = 3;
+                didikasama = true;
             }
             if (Keyboard.current.cKey.wasPressedThisFrame)
             {
@@ -104,6 +123,7 @@ public class DiceManager : MonoBehaviour
                     dice.biasMode = BiasMode.MiniWeak;     // ちょい弱い版
                 SetPowarImage(2);
                 scoreManager.biasPowar = 2;
+                didikasama = true;
             }
             if (Keyboard.current.vKey.wasPressedThisFrame)
             {
@@ -112,6 +132,7 @@ public class DiceManager : MonoBehaviour
                     dice.biasMode = BiasMode.Weak;     // 弱い版
                 SetPowarImage(1);
                 scoreManager.biasPowar = 1;
+                didikasama = true;
             }
 
             if (Keyboard.current.bKey.wasPressedThisFrame)
@@ -166,8 +187,24 @@ public class DiceManager : MonoBehaviour
                 SetBiasFace(6);
             }
         }
+        if ( Keyboard.current.aKey.wasPressedThisFrame&& rerollnumber == 0)
+        {
+
+                Buffa();
 
 
+        }
+
+
+    }
+    void Buffa()
+    {
+        if (rerollnumber <= 0 ) ;
+        {
+            StartCoroutine(Finishscoreexpress());
+
+
+        }
     }
     void SetBiasFace(int face)
     {
@@ -346,6 +383,27 @@ public class DiceManager : MonoBehaviour
     $"6:{countResults[5]}"
 );
 
+    }
+    IEnumerator Finishscoreexpress()
+    {
+        Debug.Log("終了判定");
+        actflag = true;
+        imageController.hanteiImage.gameObject.SetActive(true);
+        imageController.RerollImage();
+
+        didikasama = false;
+        scoreManager.specialwinImage.SetActive(false);
+        gamefinishscoreText.text = "";
+        scoreManager.biaspoint = 0;
+        imageController.ChangehanteiImage(sumscore);
+        string text = "";
+            text += $"{sumscore}";
+        gamefinishscoreText.text = text;
+        yield return new WaitForSeconds(10f);
+
+        Application.Quit();//アプリを落とすよ
+        Debug.Log("終了");
+        gamestarted = false;
     }
 
 

@@ -22,7 +22,7 @@ Material:
   stringTagMap:
     RenderType: Transparent
   disabledShaderPasses: []
-  m_LockedProperties: :m_LightmapFlags _Color _MainTex _Mode
+  m_LockedProperties: :m_LightmapFlags _Mode
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:

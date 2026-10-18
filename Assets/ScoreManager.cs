@@ -4,11 +4,15 @@ public class ScoreManager : MonoBehaviour
 {
     [SerializeField]
     private int baseScore = 100;
-    private DiceManager diceManager;
+    public DiceManager diceManager;
     public int biasPowar;
     public float biaspoint;
-    public float fusinmater = 100;
+    public float fusinmater = 50;
+    private int specialmultiply = 1;
+    public GameObject specialwinImage;
+    public GameObject ikasamadetect;
     public string[] rolePatternsName =
+
     {"ひふみ",
      "しごろ",
      "ぴんぞろ",
@@ -135,16 +139,28 @@ public class ScoreManager : MonoBehaviour
 
         finalScore =
             Mathf.RoundToInt(
-                baseScore * totalMultiplier
+                baseScore * totalMultiplier* specialmultiply
             );
+    specialmultiply = 1;
         Debug.Log(
     $"最終スコア : {finalScore}");
-        biaspoint = biaspoint + totalMultiplier - 3;//でかい倍率を出すと不信感が増す。倍率がワンペア以下だと減る。
+        biaspoint = (biaspoint + totalMultiplier - 1)*3;//でかい倍率を出すと不信感が増す。倍率がワンペア以下だと減る。
     }
     public void Update()
     { if(biasPowar!=0&&diceManager.actflag)//いかさま検出用スコア
         { biaspoint=biaspoint+biasPowar*Time.deltaTime;}
     }
     public void CheckEvent()
-    { }
+    {
+        ikasamadetect.SetActive(true);
+        if (diceManager.didikasama)
+        {  diceManager.rerollnumber = 0;
+            diceManager.sumscore = 0;//
+            Debug.Log("ikasamahantei");
+                }
+        else
+        { specialmultiply = specialmultiply * 5; 
+        specialwinImage.SetActive(true);
+        }
+    }
 }

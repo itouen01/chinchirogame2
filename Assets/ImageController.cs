@@ -6,10 +6,12 @@ public class ImageController : MonoBehaviour
     [SerializeField] private Image targetImage;
     [SerializeField] private Image powarImage;
     public GameObject rerollImage;
+    [SerializeField] public Image hanteiImage;
 
     //スプライトのアニメーション1枚ずつ
     [SerializeField] private Sprite[] biasSprites;
     [SerializeField] private Sprite[] powarSprites;
+    [SerializeField] private Sprite[] hanteiSprites;
     //再生以外の動作系に
     RectTransform panel;
     [SerializeField] RectTransform scorePanel;
@@ -51,5 +53,19 @@ public class ImageController : MonoBehaviour
                 target,
                 8f * Time.deltaTime
             );
+    }
+    public void ChangehanteiImage(int score)
+    {
+
+            targetImage.sprite = biasSprites[0];
+            if (score >=2000 )
+            {
+            targetImage.sprite = biasSprites[1];
+            if (score >= 10000)
+                {
+                    targetImage.sprite = biasSprites[2];
+                }
+            }
+  
     }
 }
